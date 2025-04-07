@@ -1,0 +1,88 @@
+﻿@page
+@model LonrixApp.Pages.Invoices.IndexModel
+@{
+}
+
+
+<h2 class="text-center">Invoices</h2>
+<a class="btn btn-primary" asp-page="/Invoices/Create"><i class="bi bi-folder-plus"></i>New Invoice</a>
+<table class="table" id="invoiceTable">
+	<thead>
+		<tr>
+			<th>Invoice Number</th>
+			<th>Status</th>
+			<th>Client</th>
+			<th>Total Price</th>
+			<th>Issue Date</th>
+			<th>Due Date</th>
+			<th>Action</th>
+		</tr>
+	</thead>
+	<tbody class="table-group-divider">
+		@foreach(var invoice in Model.invoiceList)
+		
+		{
+			<tr>
+				<td>@invoice.Number</td>
+				<td>@invoice.Status</td>
+				<td>@invoice.ClientName</td>
+				<td>@(invoice.Quantity * invoice.UnitPrice)₹</td>
+				<td>@invoice.IssueDate</td>
+				<td>@invoice.DueDate</td>
+				<td style="white-space:nowrap">
+					<a class="btn btn-primary btn-sm" asp-page="/Invoices/Edit" asp-route-id="@invoice.Id"><i class="bi bi-pencil-square"></i>Edit</a>
+					<a class="btn btn-info btn-sm" asp-page="/Invoices/Detail" asp-route-id="@invoice.Id"><i class="bi bi-eye-fill"></i>Detail</a>
+					<a class="btn btn-danger btn-sm delete-btn" data-id="@invoice.Id" data-name="@invoice.ClientName"><i class="bi bi-trash3-fill"></i>Delete</a>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
+
+<div class="d-flex flex-row justify-content-center mt-4">
+	<a class="btn btn-outline-info" asp-page="/Invoices/Chart">Invoices Chart</a>
+</div>
+
+@section scripts{
+	<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+	<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+	<script>
+		$(document).ready(function () {
+			$('#invoiceTable').DataTable();
+
+			
+			$('.delete-btn').on('click', function () {
+				var invoiceId = $(this).data('id');
+				var name = $(this).data('name');
+
+				toastr.clear(); 
+				toastr.warning(
+					'<div>Are you sure you want to delete ' + name + '`s invoice?<br><br>' +
+					'<button type="button" class="btn btn-danger btn-sm confirm-delete" data-id="' + invoiceId + '">Yes</button> ' +
+					'<button type="button" class="btn btn-secondary btn-sm cancel-delete">No</button>' +
+					'</div>',
+					'Confirm Delete',
+					{
+						closeButton: false,
+						timeOut: 0,
+						extendedTimeOut: 0,
+						tapToDismiss: false,
+						allowHtml: true
+					}
+				);
+			});
+
+			
+			$(document).on('click', '.confirm-delete', function () {
+				var invoiceId = $(this).data('id');
+				toastr.clear();
+				window.location.href = '/Invoices/Delete?id=' + invoiceId;
+			});
+
+			
+			$(document).on('click', '.cancel-delete', function () {
+				window.location.href = '/Invoices/Index';
+			});
+		});
+	</script>
+}

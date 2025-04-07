@@ -1,0 +1,115 @@
+﻿@page
+@model LonrixApp.Pages.Invoices.DetailModel
+@{
+}
+
+<h2 class="text-center">@Model.Invoice.ClientName`s Invoice Details</h2>
+
+	<div class="row g-2 mb-3">
+		<div class="col-lg-6">
+			<div class="card h-100">
+				<div class="card-header">Invoice Details</div>
+				<div class="card-body">
+					<div class="row mb-3">
+						<label class="col-sm-4 col-form-label">Invoice No</label>
+						<div class="col-sm-8">
+							<input class="form-control" asp-for="Invoice.Number" disabled/>							
+						</div>
+					</div>
+					<div class="row mb-3">
+						<label class="col-sm-4 col-form-label">Payment Status</label>
+						<div class="col-sm-8">
+							<input class="form-control" asp-for="Invoice.Status" disabled/>
+						</div>
+					</div>
+					<div class="row mb-3">
+						<label class="col-sm-4 col-form-label">Issue Date</label>
+						<div class="col-sm-8">
+							<input type="date" class="form-control" asp-for="Invoice.IssueDate" disabled/>
+							
+						</div>
+					</div>
+					<div class="row mb-3">
+						<label class="col-sm-4 col-form-label">Due Date</label>
+						<div class="col-sm-8">
+							<input class="form-control" type="date" asp-for="Invoice.DueDate" disabled/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-lg-6">
+			<div class="card h-100">
+				<div class="card-header">Client Details</div>
+				<div class="card-body">
+					<div class="row mb-3">
+						<label class="col-sm-4 col-form-label">Client</label>
+						<div class="col-sm-8">
+							<input class="form-control" asp-for="Invoice.ClientName" disabled/>
+						</div>
+					</div>
+					<div class="row mb-3">
+						<label class="col-sm-4 col-form-label">Email</label>
+						<div class="col-sm-8">
+							<input class="form-control" asp-for="Invoice.Email" disabled/>
+						</div>
+					</div>
+					<div class="row mb-3">
+						<label class="col-sm-4 col-form-label">Phone</label>
+						<div class="col-sm-8">
+							<input class="form-control" asp-for="Invoice.phone" disabled/>
+						</div>
+					</div>
+					<div class="row mb-3">
+						<label class="col-sm-4 col-form-label">Address</label>
+						<div class="col-sm-8">
+							<input class="form-control" asp-for="Invoice.Address" disabled/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="card mb-3">
+		<div class="card-header">Service Details</div>
+		<div class="card-body">
+			<div class="row g-2">
+				<div class="col-lg-6">
+					<label class="form-label">Service</label>
+					<input class="form-control" asp-for="Invoice.Service" disabled/>
+				</div>
+				<div class="col-lg-2 col-sm-4">
+					<label class="form-label">Quantity</label>
+					<input class="form-control" asp-for="Invoice.Quantity" id="quantityInput" oninput="updateTotalPrice()" disabled/>
+				</div>
+				<div class="col-lg-2 col-sm-4">
+					<label class="form-label">Unit Price</label>
+					<input class="form-control" asp-for="Invoice.UnitPrice" id="unitPriceInput" oninput="updateTotalPrice()" disabled/>
+				</div>
+				<div class="col-lg-2 col-sm-4">
+					<label class="form-label">Totaal Price</label>
+					<input class="form-control" disabled id="totalPriceInput" />
+				</div>
+			</div>
+		</div>
+	</div>
+<div class="d-flex justify-content-end mb-3">
+   <a class="btn btn-outline-primary" asp-page="/Invoices/Index" role="button">Back</a>
+</div>
+
+<script>
+	function updateTotalPrice(){
+		let quantity=document.getElementById("quantityInput").value;
+		let unitprice=document.getElementById("unitPriceInput").value;
+
+		if(isNaN(quantity) || isNaN(unitprice)){
+			document.getElementById("totalPriceInput").value="0";
+		}
+		else
+		{
+			let totalprice = quantity*unitprice;
+			document.getElementById("totalPriceInput").value=totalprice;
+		}
+	}
+	updateTotalPrice();
+</script>

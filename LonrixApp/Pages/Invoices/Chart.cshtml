@@ -1,0 +1,57 @@
+﻿@page
+@model LonrixApp.Pages.Invoices.ChartModel
+@{
+    ViewData["Title"] = "Invoice Chart";
+}
+
+<h2 class="text-center">Invoice Total Price Chart</h2>
+<canvas id="invoiceChart" width="800" height="400"></canvas>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: '/Invoices/Chart?handler=Data',
+                method: 'GET',
+                success: function (response) {
+                    var names = response.map(x => x.name);
+                    var totals = response.map(x => x.total);
+
+                    var ctx = document.getElementById('invoiceChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: names,
+                            datasets: [{
+                                label: 'Total Price (₹)',
+                                data: totals,
+                                fill: false,
+                                borderColor: 'rgb(75, 192, 192)',
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Invoice Totals'
+                                }
+                            }
+                        }
+                    });
+                },
+                error: function () {
+                    alert('Error loading chart data.');
+                }
+            });
+        });
+    </script>
+}
