@@ -1,0 +1,39 @@
+﻿@page
+@model LonrixApp.Pages.Invoices.MapModel
+@{
+}
+@{
+    ViewData["Title"] = "Map Example";
+}
+
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+
+<h2>Map with Search</h2>
+<div id="map" style="height: 500px;"></div>
+
+
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+<script>
+    
+    var map = L.map('map').setView([18.1165, 83.4115], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    L.Control.geocoder({
+        defaultMarkGeocode: true
+    })
+    .on('markgeocode', function(e) {
+        var bbox = e.geocode.bbox;
+        var bounds = [[bbox.getSouthWest().lat, bbox.getSouthWest().lng],
+                      [bbox.getNorthEast().lat, bbox.getNorthEast().lng]];
+        map.fitBounds(bounds);
+    })
+    .addTo(map);
+</script>

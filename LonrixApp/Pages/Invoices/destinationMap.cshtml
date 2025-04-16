@@ -1,0 +1,127 @@
+﻿@page
+@model LonrixApp.Pages.Invoices.MapyModel
+@{
+    ViewData["Title"] = "Map Search";
+}
+
+<h2>Map with Autocomplete Search</h2>
+
+
+<div style="margin-bottom: 10px; position: relative;">
+    <input type="text" id="startInput" placeholder="Start Location" oninput="getSuggestions(this.value, 'start')" autocomplete="off">
+    <div id="startSuggestions" class="suggestions-box"></div>
+
+    <input type="text" id="endInput" placeholder="End Location" oninput="getSuggestions(this.value, 'end')" autocomplete="off">
+    <div id="endSuggestions" class="suggestions-box"></div>
+
+    <button onclick="drawRoute()">Draw Route</button>
+</div>
+
+
+<div id="map" style="height: 600px;"></div>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
+
+
+<style>
+    .suggestions-box {
+        position: absolute;
+        background: white;
+        border: 1px solid #ccc;
+        z-index: 1000;
+        width: 200px;
+        max-height: 150px;
+        overflow-y: auto;
+    }
+
+        .suggestions-box div {
+            padding: 5px;
+            cursor: pointer;
+        }
+
+            .suggestions-box div:hover {
+                background-color: #f0f0f0;
+            }
+
+    input {
+        width: 200px;
+        margin-right: 10px;
+        margin-bottom: 5px;
+    }
+</style>
+
+<script>
+    let map = L.map('map').setView([18.1067, 83.3956], 13); 
+    let startLatLng = null;
+    let endLatLng = null;
+    let startMarker = null;
+    let endMarker = null;
+    let routingControl = null;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    
+    function getSuggestions(query, type) {
+        if (query.length < 3) return;
+
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5`)
+            .then(response => response.json())
+            .then(data => {
+                const suggestionsBox = document.getElementById(type + 'Suggestions');
+                suggestionsBox.innerHTML = '';
+                data.forEach(place => {
+                    const div = document.createElement('div');
+                    div.textContent = place.display_name;
+                    div.onclick = () => selectLocation(place, type);
+                    suggestionsBox.appendChild(div);
+                });
+            });
+    }
+
+    
+    function selectLocation(place, type) {
+        const latlng = L.latLng(place.lat, place.lon);
+        if (type === 'start') {
+            startLatLng = latlng;
+            document.getElementById('startInput').value = place.display_name;
+            document.getElementById('startSuggestions').innerHTML = '';
+            if (startMarker) map.removeLayer(startMarker);
+            startMarker = L.marker(latlng).addTo(map).bindPopup("Start").openPopup();
+        } else {
+            endLatLng = latlng;
+            document.getElementById('endInput').value = place.display_name;
+            document.getElementById('endSuggestions').innerHTML = '';
+            if (endMarker) map.removeLayer(endMarker);
+            endMarker = L.marker(latlng).addTo(map).bindPopup("Destination").openPopup();
+        }
+        map.setView(latlng, 13);
+    }
+
+    
+    function drawRoute() {
+        if (!startLatLng || !endLatLng) {
+            alert("Please select both start and destination.");
+            return;
+        }
+
+        if (routingControl) {
+            map.removeControl(routingControl);
+        }
+
+        routingControl = L.Routing.control({
+            waypoints: [
+                startLatLng,
+                endLatLng
+            ],
+            lineOptions: {
+                styles: [{ color: 'blue', opacity: 0.7, weight: 5 }]
+            },
+            routeWhileDragging: false
+        }).addTo(map);
+    }
+</script>
